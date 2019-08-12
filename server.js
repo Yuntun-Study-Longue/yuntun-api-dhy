@@ -1,4 +1,4 @@
-require('dotenv')
+require('dotenv').config();
 const Hapi = require('hapi');
 const laabr = require('laabr');
 const Inert = require('inert');
@@ -10,7 +10,9 @@ const Nes = require('nes');
 
 const Path = require('path');
 const { Main } = require('./router');
+
 const { SERVER_PORT, SERVER_HOST } = process.env;
+
 
 const start = async () => {
   const server = Hapi.server({
@@ -22,33 +24,36 @@ const start = async () => {
   const options = {
     pathPrefixSize: 1,
     basePath: `/`,
-    jsonPath: `${process.env.npm_package_prefix}_${process.env.npm_package_author_name}/swagger.json`,
-    swaggerUIPath: `${process.env.npm_package_prefix}_${process.env.npm_package_author_name}/swaggerui/`,
-    documentationPath: `${process.env.npm_package_prefix}_${process.env.npm_package_author_name}/documentation`,
+    jsonPath: `/webcore/swagger.json`,
+    swaggerUIPath: `/webcore/swaggerui/`,
+    documentationPath: `/doc/documentation`,
     info: {
       'title': `${process.env.npm_package_name} API Documentation`,
       'version': process.env.npm_package_version,
     }
   };
-
-  let server_setting = [
+  await server.register([
     { plugin: Inert },
     { plugin: Vision },
     { plugin: Susie },
     { plugin: Nes },
     { plugin: laabr.plugin, options: {indent: 0 } },
-    { plugin: HapiSwagger, options }
-  ];
+    { plugin: HapiSwagger, options },
+    { plugin: require('./global') },
+    { plugin: require('./handler'), options: { prefix: '/webcore/api' } }
+  ]);
 
-  await server.register(server_setting);
+  // 静态文件路由
+  server.route([
+    {
+      method: "GET",
+      path: "/{param*}",
+      handler: {
+        directory: { path: Path.join(__dirname, "./public") }
+      }
+    }
+  ])
 
-  server.path(Path.join(__dirname, './public'));
-
-  const routes = [
-    ...Main.routers,
-  ]
-
-  server.route(routes);
   await server.start();
   console.log(`Listening on //${SERVER_HOST}:${SERVER_PORT}`)
 }

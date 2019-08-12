@@ -1,3 +1,3 @@
 module.exports = {
-  Main: require('./Main').Main,
+  Main: require('./Main'),
 }
