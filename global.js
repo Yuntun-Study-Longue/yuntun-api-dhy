@@ -1,7 +1,7 @@
 const {
 RD_HOST, RD_PORT,
-DB_HOST, DB_PORT, DB_NAME,
-ACCESS_KEY_ID, ACCESS_KEY_SECRET, OSS_BUCKET_NAME
+DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWD,
+MAIN_ACCESS_KEY_ID, MAIN_ACCESS_KEY_SECRET, OSS_BUCKET_NAME
 } = process.env;
 const Redis = require('ioredis');
 const OSS= require('ali-oss');
@@ -11,12 +11,12 @@ exports.register = function (server, options, next) {
     const session = new Redis(RD_PORT, RD_HOST);
 
     // 初始化 mongo
-    const db = require('monk')(`${DB_HOST}:${DB_PORT}/${DB_NAME}`);
+    const db = require('monk')(`${DB_USER}:${DB_PASSWD}@${DB_HOST}:${DB_PORT}/${DB_NAME}`);
 
     // 初始化 alioss
     const alioss = new OSS({
-        accessKeyId: ACCESS_KEY_ID,
-        accessKeySecret: ACCESS_KEY_SECRET,
+        accessKeyId: MAIN_ACCESS_KEY_ID,
+        accessKeySecret: MAIN_ACCESS_KEY_SECRET,
         internal: false,
         region: 'oss-cn-beijing',
         bucket: OSS_BUCKET_NAME,
@@ -48,11 +48,7 @@ exports.register = function (server, options, next) {
     server.expose('session', session);
     // monk 集群存储
     server.expose('collections', {
-        wxusers: db.get('wxusers'),
-        bsfusion: db.get('bsfusion_data'),
-        bsfusion_activity: db.get('bsfusion_activity'),
-        books: db.get('books'),
-        feedback: db.get('feedback')
+        db_test: db.get('db_test'),
     });
     server.method('GClientIP', (REQUEST)=> (
         REQUEST['headers']['x-real-ip']||

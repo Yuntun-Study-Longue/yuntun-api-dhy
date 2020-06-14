@@ -18,10 +18,12 @@ function register (server, options, next) {
       config: {
         cors: true,
         handler: async (request, h) => {
-          return h.response('ok thx');
+          const { db_test } = Main.collections;
+          const result = await db_test.find({});
+          return h.response(result);
         },
         description: '测试get方法',
-        tags: ['api', 'bsfusion'],
+        tags: ['api', 'db_test'],
         notes: 'fetchsth',
       }
     },
@@ -32,13 +34,13 @@ function register (server, options, next) {
       config: {
         cors: true,
         handler: async (request, h) => {
-          const { bsfusion } = Main.collections;
-          const result = await bsfusion.find({});
+          const { db_test } = Main.collections;
+          const result = await db_test.insert({ name: 'Alichs' });
 
           return h.response(result);
         },
         description: '测试post方法',
-        tags: ['api', 'bsfusion'],
+        tags: ['api', 'db_test'],
         notes: 'uploadsth',
       }
     },
@@ -54,7 +56,7 @@ function register (server, options, next) {
               return h.response(result)
           },
           description: '测试post方法',
-          tags: ['api', 'bsfusion'],
+          tags: ['api', 'db_test'],
           notes: 'session',
           validate: {
               query: Joi.object().keys({
@@ -76,7 +78,7 @@ function register (server, options, next) {
                 return h.response(result)
             },
             description: '测试 Redis 获取',
-            tags: ['api', 'bsfusion'],
+            tags: ['api', 'db_test'],
             notes: 'session',
             validate: {
                 query: Joi.object().keys({
