@@ -9,5 +9,5 @@ exports.register = async function (server, options, next) {
   ])
 };
 
-exports.name = 'yuntun-api-seed';
+exports.name = 'yuntun-api-dhy';
 exports.multiple = 'true';
